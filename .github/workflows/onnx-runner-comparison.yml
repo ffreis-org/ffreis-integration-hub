@@ -4,6 +4,8 @@ on:
   pull_request:
     paths:
       - "benchmarks/onnx-runner-comparison/**"
+      - "Makefile"
+      - "README.md"
       - ".github/workflows/onnx-runner-comparison.yml"
   schedule:
     - cron: "0 9 * * 3"
@@ -19,6 +21,49 @@ permissions:
   contents: read
 
 jobs:
+  standalone-repo-integration:
+    name: Standalone Repo Integration (PR/Manual)
+    if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@v3
+
+      - name: Setup Rust
+        uses: dtolnay/rust-toolchain@stable
+
+      - name: Clone comparison + serving repos
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-onnx-runner-comparison.git ../ffreis-onnx-runner-comparison
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-python-onnx-model-serving.git ../ffreis-python-onnx-model-serving
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-rust-onnx-model-serving.git ../ffreis-rust-onnx-model-serving
+
+      - name: Run integration against standalone comparison repo
+        run: |
+          set -euo pipefail
+          make compare-repo-native
+
+      - name: Upload standalone comparison artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: onnx-runner-standalone-integration-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            artifacts/standalone-comparison-report.json
+            ../ffreis-onnx-runner-comparison/artifacts/
+            /tmp/onnx-runner-comparison/
+
   native-triple:
     name: Native Triple (PR)
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'

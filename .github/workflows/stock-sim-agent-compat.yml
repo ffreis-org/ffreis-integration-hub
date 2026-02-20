@@ -1,0 +1,50 @@
+name: Stock Simulator RL Agent Compatibility
+
+on:
+  pull_request:
+    paths:
+      - "scripts/check_stock_sim_agent_compat.py"
+      - "scripts/compose.sh"
+      - "examples/docker-compose.stock-sim-dashboard-agent-experiments.yml"
+      - "Makefile"
+      - "README.md"
+      - ".github/workflows/stock-sim-agent-compat.yml"
+  schedule:
+    - cron: "20 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stock-sim-agent-compat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: "3.13"
+
+      - name: Clone stock simulator/dashboard/agent repos
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator.git ../ffreis-stock-simulator
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator-dashboard-go.git ../ffreis-stock-simulator-dashboard-go
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-rl-agent.git ../ffreis-stock-rl-agent
+
+      - name: Run simulator-agent compatibility smoke
+        run: |
+          set -euo pipefail
+          make smoke-stock-sim-agent-compat
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-sim-agent-compat-artifacts-${{ github.run_id }}
+          if-no-files-found: warn
+          path: artifacts/

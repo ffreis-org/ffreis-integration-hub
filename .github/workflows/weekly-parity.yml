@@ -1,4 +1,4 @@
-name: Weekly Cross-Repo Parity
+name: Weekly Cross-Repo Contracts
 
 on:
   schedule:
@@ -6,9 +6,9 @@ on:
   workflow_dispatch:
 
 jobs:
-  weekly-parity:
+  weekly-contracts:
     runs-on: ubuntu-latest
-    timeout-minutes: 120
+    timeout-minutes: 60
     steps:
       - name: Checkout integration hub
         uses: actions/checkout@v4
@@ -30,17 +30,9 @@ jobs:
         run: |
           make weekly-check
 
-      - name: Run converter-serving parity bench
-        run: |
-          make smoke-converter-serving-parity
-
-      - name: Run converter-serving parity bench (gRPC)
-        run: |
-          make smoke-converter-serving-parity-grpc
-
       - name: Upload artifacts
         if: always()
         uses: actions/upload-artifact@v4
         with:
-          name: weekly-parity-artifacts
+          name: weekly-contracts-artifacts
           path: artifacts/
