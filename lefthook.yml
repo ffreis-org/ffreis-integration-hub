@@ -1,37 +1,21 @@
+remotes:
+  - git_url: https://github.com/FelipeFuhr/ffreis-platform-standards
+    ref: main
+    configs:
+      - lefthook/base.yml
+
+# uses uv run ruff directly (not make fmt-check)
 pre-commit:
-  parallel: true
   commands:
-    hygiene-merge-markers:
-      run: ./scripts/hooks/check_merge_markers.sh
-    hygiene-large-files:
-      run: ./scripts/hooks/check_large_files.sh
-    hygiene-binary-files:
-      run: ./scripts/hooks/check_binary_files.sh
     fmt-check:
       glob: "scripts/**/*.py"
       run: uv run ruff format --check scripts
     lint:
       glob: "scripts/**/*.py"
       run: uv run ruff check scripts
-    secret-scan:
-      run: make secrets-scan-staged
-
-    agents-drift-hint:
-      run: |
-        changed=$(git diff --cached --name-only 2>/dev/null)
-        if echo "$changed" | grep -qE '\.(go|py|rs|tf)$' && \
-           ! echo "$changed" | grep -q 'AGENTS\.md'; then
-          echo "hint: source files changed — check if AGENTS.md needs updating" >&2
-        fi
-        exit 0
 
 pre-push:
   parallel: false
   commands:
     validate:
       run: make validate
-
-commit-msg:
-  commands:
-    conventional-commits:
-      run: ./scripts/hooks/check_commit_msg.sh {1}
