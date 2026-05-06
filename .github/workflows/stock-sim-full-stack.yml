@@ -1,0 +1,49 @@
+name: Stock Simulator Full Stack
+
+on:
+  pull_request:
+    paths:
+      - "examples/docker-compose.stock-sim-dashboard-agent-experiments.yml"
+      - "scripts/compose.sh"
+      - "Makefile"
+      - "README.md"
+      - ".github/workflows/stock-sim-full-stack.yml"
+  schedule:
+    - cron: "40 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stock-sim-full-stack:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@v4
+
+      - name: Clone stock simulator/dashboard/agent repos
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator.git ../ffreis-stock-simulator
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator-dashboard-go.git ../ffreis-stock-simulator-dashboard-go
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-rl-agent.git ../ffreis-stock-rl-agent
+
+      - name: Run full stack smoke
+        env:
+          ONLINE_TOTAL_STEPS: "120"
+          OFFLINE_EPOCHS: "1"
+        run: |
+          set -euo pipefail
+          make stock-sim-full-stack
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-sim-full-stack-artifacts-${{ github.run_id }}
+          if-no-files-found: warn
+          path: |
+            artifacts/
+            ../ffreis-stock-rl-agent/artifacts/

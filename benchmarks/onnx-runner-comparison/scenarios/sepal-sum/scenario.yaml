@@ -1,0 +1,26 @@
+name: tabular-binary-smoke
+description: |
+  Basic tabular CSV binary-classification smoke scenario.
+  Runtime model artifacts are generated before each run to keep setup deterministic.
+request:
+  path: /invocations
+  health_path: /healthz
+  content_type: text/csv
+  accept: application/json
+  payload_file: payload.csv
+testset:
+  file: testset.csv
+  format: text/csv
+compare:
+  active_services:
+    - python
+    - python_sklearn
+    - rust
+  baseline_service: python
+  parity_services:
+    - python
+    - python_sklearn
+  warmup_requests: 5
+  measured_requests: 40
+  max_mean_ratio: 2.5
+  max_p95_ratio: 2.5

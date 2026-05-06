@@ -1,0 +1,7 @@
+mode: container
+compose_file: examples/docker-compose.converter-serving-parity.yml
+services:
+  python:
+    base_url: http://python-api:8080
+  rust:
+    base_url: http://rust-api:8080

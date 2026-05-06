@@ -3,3 +3,15 @@ artifacts/*.log
 artifacts/*.json
 __pycache__/
 .pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.hypothesis/
+.tox/
+.nox/
+.venv/
+venv/
+env/
+**/__pycache__/
+**/.pytest_cache/
+**/.ruff_cache/
+**/.mypy_cache/

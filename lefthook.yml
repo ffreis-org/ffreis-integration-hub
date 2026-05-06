@@ -1,0 +1,21 @@
+remotes:
+  - git_url: https://github.com/FelipeFuhr/ffreis-platform-standards
+    ref: 1b2afe64334b4aff11c7e3ebc5fa964041efa3b3
+    configs:
+      - lefthook/base.yml
+
+# uses uv run ruff directly (not make fmt-check)
+pre-commit:
+  commands:
+    fmt-check:
+      glob: "scripts/**/*.py"
+      run: uv run ruff format --check scripts
+    lint:
+      glob: "scripts/**/*.py"
+      run: uv run ruff check scripts
+
+pre-push:
+  parallel: false
+  commands:
+    validate:
+      run: make validate

@@ -1,0 +1,90 @@
+services:
+  simulator:
+    build:
+      context: ../../ffreis-stock-simulator
+      dockerfile: container/Dockerfile
+    image: ffreis-stock-simulator:local
+    environment:
+      HOST: 0.0.0.0
+      PORT: "8000"
+      ENGINE_ENABLED: "true"
+      MARKET_DATA_CSV: /data/market.csv
+    volumes:
+      - ../../ffreis-stock-simulator-dashboard-go/testdata/market.csv:/data/market.csv:ro
+    ports:
+      - "18000:8000"
+    healthcheck:
+      test:
+        - CMD
+        - python
+        - -c
+        - "import urllib.request; urllib.request.urlopen('http://127.0.0.1:8000/readyz', timeout=3)"
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  dashboard:
+    build:
+      context: ../../ffreis-stock-simulator-dashboard-go
+      dockerfile: Dockerfile
+    image: ffreis-stock-dashboard:local
+    environment:
+      SIMULATOR_BASE_URL: http://simulator:8000
+      DASHBOARD_PORT: "8080"
+      DASHBOARD_POLL_MS: "1500"
+    depends_on:
+      simulator:
+        condition: service_healthy
+    ports:
+      - "18080:8080"
+
+  rl-agent:
+    build:
+      context: ../../ffreis-stock-rl-agent
+      dockerfile: Dockerfile
+    image: ffreis-stock-rl-agent:local
+    depends_on:
+      simulator:
+        condition: service_healthy
+    environment:
+      MLFLOW_ENABLED: "${MLFLOW_ENABLED:-false}"
+      MLFLOW_TRACKING_URI: "${MLFLOW_TRACKING_URI:-}"
+      MLFLOW_EXPERIMENT_NAME: "${MLFLOW_EXPERIMENT_NAME:-stock-rl-agent}"
+      MLFLOW_RUN_NAME: "${MLFLOW_RUN_NAME:-online}"
+      PYTHONUNBUFFERED: "1"
+    command:
+      - online
+      - --sim-url
+      - http://simulator:8000
+      - --total-steps
+      - "${ONLINE_TOTAL_STEPS:-300}"
+      - --checkpoint-path
+      - /artifacts/checkpoints/online.pt
+      - --replay-out
+      - /artifacts/replay/online.jsonl
+      - --strategy
+      - "${ONLINE_STRATEGY:-default}"
+    volumes:
+      - ../../ffreis-stock-rl-agent/artifacts:/artifacts
+
+  experiment-runner:
+    image: ffreis-stock-rl-agent:local
+    depends_on:
+      rl-agent:
+        condition: service_completed_successfully
+    environment:
+      MLFLOW_ENABLED: "${MLFLOW_ENABLED:-false}"
+      MLFLOW_TRACKING_URI: "${MLFLOW_TRACKING_URI:-}"
+      MLFLOW_EXPERIMENT_NAME: "${MLFLOW_EXPERIMENT_NAME:-stock-rl-agent}"
+      MLFLOW_RUN_NAME: "${MLFLOW_RUN_NAME:-offline}"
+      PYTHONUNBUFFERED: "1"
+    command:
+      - offline
+      - --replay-in
+      - /artifacts/replay/online.jsonl
+      - --epochs
+      - "${OFFLINE_EPOCHS:-2}"
+      - --checkpoint-path
+      - /artifacts/checkpoints/offline.pt
+    volumes:
+      - ../../ffreis-stock-rl-agent/artifacts:/artifacts

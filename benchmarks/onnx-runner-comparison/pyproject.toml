@@ -1,0 +1,17 @@
+[project]
+name = "onnx-runner-comparison"
+version = "0.1.0"
+description = "Parity and performance harness for Python vs Rust ONNX serving"
+requires-python = ">=3.11"
+dependencies = [
+  "httpx>=0.27.0",
+  "hypothesis>=6.0.0",
+  "locust>=2.32.0",
+  "pyyaml>=6.0.0",
+]
+
+[project.scripts]
+onnx-runner-compare = "orchestrator.main:main"
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

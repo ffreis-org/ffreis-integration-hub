@@ -1,0 +1,144 @@
+mode: native
+setup:
+  - name: build-smoke-models
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      [
+        "uv",
+        "run",
+        "--extra",
+        "dev",
+        "--with",
+        "scikit-learn",
+        "--with",
+        "joblib",
+        "--with",
+        "skl2onnx",
+        "python",
+        "examples/build_sklearn_and_onnx_smoke_models.py",
+        "/tmp/onnx-runner-comparison",
+      ]
+processes:
+  - name: python-serving
+    service: python
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      [
+        "uv",
+        "run",
+        "--extra",
+        "dev",
+        "--extra",
+        "grpc",
+        "python",
+        "-c",
+        "import uvicorn; from application import create_application; from config import Settings; uvicorn.run(create_application(Settings()), host='127.0.0.1', port=8080)",
+      ]
+    env:
+      PYTHONPATH: src
+      SM_MODEL_DIR: /tmp/onnx-runner-comparison
+      MODEL_FILENAME: model.onnx
+      MODEL_TYPE: onnx
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "false"
+      CSV_HAS_HEADER: "false"
+      PORT: "8080"
+  - name: rust-serving
+    service: rust
+    cwd: ../ffreis-rust-onnx-model-serving
+    cmd: ["cargo", "run", "--manifest-path", "app/Cargo.toml"]
+    env:
+      SM_MODEL_DIR: /tmp/onnx-runner-comparison
+      MODEL_FILENAME: model.onnx
+      MODEL_TYPE: onnx
+      SERVE_MODE: http
+      HOST: 127.0.0.1
+      PORT: "8081"
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "false"
+      CSV_HAS_HEADER: "false"
+  - name: python-serving-sklearn
+    service: python_sklearn
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      [
+        "uv",
+        "run",
+        "--extra",
+        "dev",
+        "--with",
+        "scikit-learn",
+        "--with",
+        "joblib",
+        "python",
+        "-c",
+        "import uvicorn; from application import create_application; from config import Settings; uvicorn.run(create_application(Settings()), host='127.0.0.1', port=8082)",
+      ]
+    env:
+      PYTHONPATH: src
+      SM_MODEL_DIR: /tmp/onnx-runner-comparison
+      MODEL_FILENAME: model.joblib
+      MODEL_TYPE: sklearn
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "false"
+      CSV_HAS_HEADER: "false"
+      PORT: "8082"
+  - name: python-serving-pytorch
+    service: python_pytorch
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      [
+        "uv",
+        "run",
+        "--extra",
+        "dev",
+        "--extra",
+        "torch",
+        "python",
+        "-c",
+        "import uvicorn; from application import create_application; from config import Settings; uvicorn.run(create_application(Settings()), host='127.0.0.1', port=8083)",
+      ]
+    env:
+      PYTHONPATH: src
+      SM_MODEL_DIR: /tmp/onnx-runner-comparison
+      MODEL_FILENAME: model.pt
+      MODEL_TYPE: pytorch
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "false"
+      CSV_HAS_HEADER: "false"
+      PORT: "8083"
+  - name: python-serving-tensorflow
+    service: python_tensorflow
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      [
+        "uv",
+        "run",
+        "--extra",
+        "dev",
+        "--extra",
+        "tensorflow",
+        "python",
+        "-c",
+        "import uvicorn; from application import create_application; from config import Settings; uvicorn.run(create_application(Settings()), host='127.0.0.1', port=8084)",
+      ]
+    env:
+      PYTHONPATH: src
+      SM_MODEL_DIR: /tmp/onnx-runner-comparison
+      MODEL_FILENAME: model.keras
+      MODEL_TYPE: tensorflow
+      OTEL_ENABLED: "false"
+      PROMETHEUS_ENABLED: "false"
+      CSV_HAS_HEADER: "false"
+      PORT: "8084"
+services:
+  python:
+    base_url: http://127.0.0.1:8080
+  rust:
+    base_url: http://127.0.0.1:8081
+  python_sklearn:
+    base_url: http://127.0.0.1:8082
+  python_pytorch:
+    base_url: http://127.0.0.1:8083
+  python_tensorflow:
+    base_url: http://127.0.0.1:8084

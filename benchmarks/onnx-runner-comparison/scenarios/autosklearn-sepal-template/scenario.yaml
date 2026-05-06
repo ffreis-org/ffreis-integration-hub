@@ -1,0 +1,26 @@
+enabled: false
+name: autosklearn-sepal-template
+description: |
+  Template scenario for an AutoSklearn-generated ONNX model.
+  Enable this by setting `enabled: true` and placing your model at model/model.onnx.
+model:
+  source: model/model.onnx
+  runtime_path: /tmp/onnx-runner-comparison/model.onnx
+request:
+  path: /invocations
+  health_path: /healthz
+  content_type: text/csv
+  accept: application/json
+  payload_file: payload.csv
+testset:
+  file: testset.csv
+  format: text/csv
+compare:
+  baseline_service: python
+  parity_services:
+    - python
+    - python_sklearn
+  warmup_requests: 8
+  measured_requests: 80
+  max_mean_ratio: 2.0
+  max_p95_ratio: 2.0

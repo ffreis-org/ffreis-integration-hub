@@ -1,0 +1,5 @@
+parity:
+  max_mismatch_rate: 0.0
+perf:
+  max_p95_ms_delta: 20
+  min_rps_ratio: 0.8

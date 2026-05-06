@@ -1,0 +1,11 @@
+http:
+  invocations_path: /invocations
+  health_path: /healthz
+  ready_path: /readyz
+  payloads:
+    - content_type: text/csv
+      body: "1,2,3\n4,5,6\n"
+perf:
+  users: 20
+  spawn_rate: 5
+  duration_s: 60

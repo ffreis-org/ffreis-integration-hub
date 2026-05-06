@@ -3,7 +3,7 @@ services:
     build:
       context: ../../ffreis-python-onnx-model-converter
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-converter:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-converter:${IMAGE_TAG:-integration}
     command:
       - python
       - -m
@@ -28,14 +28,14 @@ services:
       OUT_DIR: /shared
       PYTHONPATH: /deps/converter_src
     command: >
-      sh -lc "python -m pip install --no-cache-dir grpcio protobuf scikit-learn joblib &&
+      sh -lc "python -m pip install --no-cache-dir grpcio==1.78.0 protobuf==6.33.5 scikit-learn==1.8.0 joblib==1.5.3 &&
               python scripts/convert_and_prepare_grpc.py"
 
   python-grpc:
     build:
       context: ../../ffreis-python-onnx-model-serving
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-python-serving:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-python-serving:${IMAGE_TAG:-integration}
     depends_on:
       convert-model-grpc:
         condition: service_completed_successfully
@@ -62,7 +62,7 @@ services:
     build:
       context: ../../ffreis-rust-onnx-model-serving
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-rust-serving:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-rust-serving:${IMAGE_TAG:-integration}
     depends_on:
       convert-model-grpc:
         condition: service_completed_successfully
@@ -99,7 +99,7 @@ services:
       ARTIFACTS_DIR: /shared
       PYTHONPATH: /deps/serving_src
     command: >
-      sh -lc "python -m pip install --no-cache-dir grpcio protobuf &&
+      sh -lc "python -m pip install --no-cache-dir grpcio==1.78.0 protobuf==6.33.5 &&
               python scripts/bench_compare_grpc.py"
 
 volumes:

@@ -1,0 +1,44 @@
+name: Converter Serving Parity
+
+on:
+  pull_request:
+    paths:
+      - "examples/docker-compose.converter-serving-parity.yml"
+      - "examples/docker-compose.converter-serving-parity-grpc.yml"
+      - "scripts/bench_compare_http.py"
+      - "scripts/bench_compare_grpc.py"
+      - "scripts/compose.sh"
+      - "Makefile"
+      - ".github/workflows/converter-serving-parity.yml"
+  schedule:
+    - cron: "30 8 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  converter-serving-parity:
+    runs-on: ubuntu-latest
+    timeout-minutes: 90
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@v4
+
+      - name: Run converter-serving parity bench (HTTP)
+        run: |
+          set -euo pipefail
+          make smoke-converter-serving-parity
+
+      - name: Run converter-serving parity bench (gRPC)
+        run: |
+          set -euo pipefail
+          make smoke-converter-serving-parity-grpc
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: converter-serving-parity-artifacts-${{ github.run_id }}
+          if-no-files-found: warn
+          path: artifacts/

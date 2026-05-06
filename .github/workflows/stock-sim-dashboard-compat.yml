@@ -1,0 +1,48 @@
+name: Stock Simulator Dashboard Compatibility
+
+on:
+  pull_request:
+    paths:
+      - "scripts/check_stock_dashboard_compat.py"
+      - "scripts/compose.sh"
+      - "Makefile"
+      - "README.md"
+      - ".github/workflows/stock-sim-dashboard-compat.yml"
+  schedule:
+    - cron: "0 9 * * 1"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  stock-sim-dashboard-compat:
+    runs-on: ubuntu-latest
+    timeout-minutes: 60
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@v4
+
+      - name: Setup Python
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.13"
+
+      - name: Clone stock simulator repos
+        run: |
+          set -euo pipefail
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator.git ../ffreis-stock-simulator
+          git clone --depth=1 https://github.com/FelipeFuhr/ffreis-stock-simulator-dashboard-go.git ../ffreis-stock-simulator-dashboard-go
+
+      - name: Run compatibility smoke
+        run: |
+          set -euo pipefail
+          make smoke-stock-sim-dashboard
+
+      - name: Upload artifacts
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: stock-sim-dashboard-compat-artifacts-${{ github.run_id }}
+          if-no-files-found: warn
+          path: artifacts/

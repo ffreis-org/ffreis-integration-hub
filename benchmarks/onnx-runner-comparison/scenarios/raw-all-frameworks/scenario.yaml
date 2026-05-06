@@ -1,0 +1,49 @@
+enabled: true
+name: raw-all-frameworks
+description: |
+  Native comparison including python raw backends (sklearn, pytorch, tensorflow),
+  python onnx, and rust onnx. Parity is validated across python services.
+model:
+  prepare:
+    cwd: ../ffreis-python-onnx-model-serving
+    cmd:
+      - uv
+      - run
+      - --extra
+      - dev
+      - --extra
+      - torch
+      - --extra
+      - tensorflow
+      - --with
+      - scikit-learn
+      - --with
+      - joblib
+      - --with
+      - skl2onnx
+      - python
+      - examples/build_all_smoke_models.py
+      - /tmp/onnx-runner-comparison
+request:
+  path: /invocations
+  health_path: /healthz
+  content_type: text/csv
+  accept: application/json
+  payload_file: payload.csv
+compare:
+  active_services:
+    - python
+    - python_sklearn
+    - python_pytorch
+    - python_tensorflow
+    - rust
+  baseline_service: python
+  parity_services:
+    - python
+    - python_sklearn
+    - python_pytorch
+    - python_tensorflow
+  warmup_requests: 8
+  measured_requests: 60
+  max_mean_ratio: 3.0
+  max_p95_ratio: 3.0

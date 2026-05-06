@@ -3,7 +3,7 @@ services:
     build:
       context: ../../ffreis-python-onnx-model-converter
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-converter:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-converter:${IMAGE_TAG:-integration}
     command:
       - python
       - -m
@@ -42,7 +42,7 @@ services:
     build:
       context: ../../ffreis-python-onnx-model-serving
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-python-serving:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-python-serving:${IMAGE_TAG:-integration}
     depends_on:
       convert-model:
         condition: service_completed_successfully
@@ -78,7 +78,7 @@ services:
     build:
       context: ../../ffreis-rust-onnx-model-serving
       dockerfile: container/Dockerfile.services
-    image: localhost/ffreis-rust-serving:integration
+    image: ${IMAGE_ROOT:-localhost/ffreis}-rust-serving:${IMAGE_TAG:-integration}
     depends_on:
       convert-model:
         condition: service_completed_successfully
