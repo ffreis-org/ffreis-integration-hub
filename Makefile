@@ -9,9 +9,42 @@ BENCH_DIR ?= benchmarks/onnx-runner-comparison
 COMPARE_REPO_DIR ?= ../ffreis-onnx-runner-comparison
 COMPARE_REPORT ?= artifacts/compare-native-sepal-report.json
 
+GITLEAKS         ?= gitleaks
+LEFTHOOK_VERSION ?= 1.7.10
+LEFTHOOK_DIR     ?= $(CURDIR)/.bin
+LEFTHOOK_BIN     ?= $(LEFTHOOK_DIR)/lefthook
+
 .PHONY: help
 help:
 	@awk 'BEGIN {FS = ":.*##"} /^[a-zA-Z_-]+:.*##/ {printf "\033[36m%-26s\033[0m %s\n", $$1, $$2}' $(MAKEFILE_LIST)
+
+# ------------------------------------------------------------------------------
+# Standard interface targets
+# ------------------------------------------------------------------------------
+
+.PHONY: fmt
+fmt: ## Format Python scripts in place (ruff format)
+	uv run ruff format scripts
+
+.PHONY: lint
+lint: ## Run lint/type checks on scripts
+	uv run ruff check scripts
+	uv run ruff format --check scripts
+	uv run mypy scripts
+
+.PHONY: test
+test: ## Run integration smoke checks against local sibling repos
+	$(MAKE) weekly-check-local
+
+.PHONY: validate
+validate: ## Static type checking (mypy)
+	uv run mypy scripts
+
+.PHONY: plan
+plan: ## Not applicable — use 'make validate' or 'make test' for this repo
+	@echo "INFO: 'plan' is Terraform-specific and does not apply to this repo."
+	@echo "      To type-check: make validate"
+	@echo "      To run smoke checks: make test"
 
 .PHONY: weekly-check
 weekly-check: ## Clone/update configured repos and run all parity checks
@@ -96,3 +129,29 @@ compare-repo-native: ## Run standalone comparison repo in native mode and valida
 	@test -s "$(COMPARE_REPO_DIR)/$(COMPARE_REPORT)" || (echo "Missing report: $(COMPARE_REPO_DIR)/$(COMPARE_REPORT)"; exit 1)
 	mkdir -p artifacts
 	cp -f "$(COMPARE_REPO_DIR)/$(COMPARE_REPORT)" artifacts/standalone-comparison-report.json
+
+.PHONY: secrets-scan-staged lefthook-bootstrap lefthook-install lefthook-run lefthook
+
+secrets-scan-staged: ## Scan staged diff for secrets
+	@command -v $(GITLEAKS) >/dev/null 2>&1 || (echo "Missing tool: $(GITLEAKS). Install: https://github.com/gitleaks/gitleaks#installing" && exit 1)
+	$(GITLEAKS) protect --staged --redact
+
+lefthook-bootstrap: ## Download lefthook binary into ./.bin
+	LEFTHOOK_VERSION="$(LEFTHOOK_VERSION)" BIN_DIR="$(LEFTHOOK_DIR)" bash ./scripts/bootstrap_lefthook.sh
+
+lefthook-install: lefthook-bootstrap ## Install git hooks (runs bootstrap first)
+	@if [ -x "$(LEFTHOOK_BIN)" ] && [ -x ".git/hooks/pre-commit" ] && [ -x ".git/hooks/pre-push" ] && [ -x ".git/hooks/commit-msg" ]; then \
+		echo "lefthook hooks already installed"; \
+		exit 0; \
+	fi
+	LEFTHOOK="$(LEFTHOOK_BIN)" "$(LEFTHOOK_BIN)" install
+
+lefthook-run: lefthook-bootstrap ## Run all hooks locally (pre-commit + commit-msg + pre-push)
+	LEFTHOOK="$(LEFTHOOK_BIN)" "$(LEFTHOOK_BIN)" run pre-commit
+	@tmp_msg="$$(mktemp)"; \
+	echo "chore(hooks): validate commit-msg hook" > "$$tmp_msg"; \
+	LEFTHOOK="$(LEFTHOOK_BIN)" "$(LEFTHOOK_BIN)" run commit-msg -- "$$tmp_msg"; \
+	rm -f "$$tmp_msg"
+	LEFTHOOK="$(LEFTHOOK_BIN)" "$(LEFTHOOK_BIN)" run pre-push
+
+lefthook: lefthook-bootstrap lefthook-install lefthook-run ## Install hooks and run them
