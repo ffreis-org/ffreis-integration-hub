@@ -6,6 +6,10 @@ on:
 
 jobs:
   labeler:
+    permissions:
+      contents: read
+      pull-requests: write
+      issues: write
     uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-labeler.yml@main
     with:
       rules-json: |-

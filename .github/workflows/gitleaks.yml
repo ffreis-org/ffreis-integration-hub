@@ -7,6 +7,10 @@ on:
 
 jobs:
   gitleaks:
+    permissions:
+      contents: read
+      actions: read
+      security-events: write
     uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-gitleaks.yml@main
     with:
       working-directory: .

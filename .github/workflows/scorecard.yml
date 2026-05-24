@@ -9,6 +9,11 @@ on:
 
 jobs:
   scorecard:
+    permissions:
+      id-token: write
+      security-events: write
+      contents: read
+      actions: read
     uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-scorecard.yml@main
     with:
       upload-sarif: true

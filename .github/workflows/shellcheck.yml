@@ -7,6 +7,8 @@ on:
 
 jobs:
   shellcheck:
+    permissions:
+      contents: read
     uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-shellcheck.yml@main
     with:
       working-directory: .
