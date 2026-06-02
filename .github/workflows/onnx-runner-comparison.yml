@@ -8,7 +8,7 @@ on:
       - "README.md"
       - ".github/workflows/onnx-runner-comparison.yml"
   schedule:
-    - cron: "0 9 * * 3"
+    - cron: "2 18 9 * *"  # monthly scattered (was: 0 9 * * 3)
   workflow_dispatch:
     inputs:
       run_raw_all:
@@ -17,12 +17,17 @@ on:
         default: false
         type: boolean
 
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   standalone-repo-integration:
     name: Standalone Repo Integration (PR/Manual)
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -67,7 +72,7 @@ jobs:
     name: Native Triple (PR)
     if: github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch'
     runs-on: ubuntu-latest
-    timeout-minutes: 60
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:
@@ -109,7 +114,7 @@ jobs:
     name: Native Raw All (Scheduled/Manual)
     if: github.event_name == 'schedule' || (github.event_name == 'workflow_dispatch' && inputs.run_raw_all)
     runs-on: ubuntu-latest
-    timeout-minutes: 150
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:

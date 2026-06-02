@@ -9,13 +9,18 @@ on:
       - "README.md"
       - ".github/workflows/stock-sim-full-stack.yml"
   schedule:
-    - cron: "40 9 * * 1"
+    - cron: "35 6 26 * *"  # monthly scattered (was: 40 9 * * 1)
   workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   stock-sim-full-stack:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:

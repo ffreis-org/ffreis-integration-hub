@@ -11,13 +11,18 @@ on:
       - "Makefile"
       - ".github/workflows/converter-serving-parity.yml"
   schedule:
-    - cron: "30 8 * * 1"
+    - cron: "42 11 4 * *"  # monthly scattered (was: 30 8 * * 1)
   workflow_dispatch:
+
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   converter-serving-parity:
     runs-on: ubuntu-latest
-    timeout-minutes: 90
+    timeout-minutes: 30
     permissions:
       contents: read
     steps:

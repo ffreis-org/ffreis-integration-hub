@@ -3,6 +3,11 @@ name: DevOps / Semantic PR
 on:
   pull_request:
 
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   semantic-pr:
     permissions:
