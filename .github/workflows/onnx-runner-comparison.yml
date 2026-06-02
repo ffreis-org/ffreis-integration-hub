@@ -2,6 +2,7 @@ name: ONNX Runner Comparison
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "benchmarks/onnx-runner-comparison/**"
       - "Makefile"
