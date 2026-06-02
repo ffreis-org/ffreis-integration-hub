@@ -2,6 +2,7 @@ name: Stock Simulator Full Stack
 
 on:
   pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
     paths:
       - "examples/docker-compose.stock-sim-dashboard-agent-experiments.yml"
       - "scripts/compose.sh"
@@ -19,6 +20,7 @@ concurrency:
 
 jobs:
   stock-sim-full-stack:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
     runs-on: ubuntu-latest
     timeout-minutes: 30
     permissions:
