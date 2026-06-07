@@ -19,6 +19,8 @@ common_info() {
 common_die() {
   common_err "$@"
   exit 1
+  # shellcheck disable=SC2317
+  return 1
 }
 
 common_require_git_repo() {

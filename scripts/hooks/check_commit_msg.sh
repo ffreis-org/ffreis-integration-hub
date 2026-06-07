@@ -3,14 +3,14 @@ set -euo pipefail
 IFS=$'\n\t'
 
 commit_msg_file="${1:-}"
-if [ -z "${commit_msg_file}" ] || [ ! -f "${commit_msg_file}" ]; then
+if [[ -z "${commit_msg_file}" ]] || [[ ! -f "${commit_msg_file}" ]]; then
   echo "Commit message file is required." >&2
   echo "Usage: $0 <commit-msg-file>" >&2
   exit 1
 fi
 
 subject="$(grep -m1 -vE '^\s*(#|$)' "${commit_msg_file}" || true)"
-if [ -z "${subject}" ]; then
+if [[ -z "${subject}" ]]; then
   echo "Commit message subject cannot be empty." >&2
   exit 1
 fi
@@ -24,7 +24,7 @@ if [[ "${subject}" =~ ^Merge[[:space:]] ]]; then
   exit 0
 fi
 
-if [ "${#subject}" -gt 72 ]; then
+if [[ "${#subject}" -gt 72 ]]; then
   echo "Commit subject is too long (${#subject} > 72)." >&2
   exit 1
 fi
