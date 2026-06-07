@@ -1,6 +1,9 @@
 .work/
 artifacts/*.log
 artifacts/*.json
+
+# Sonar / scanner artifacts
+.scannerwork/
 __pycache__/
 .pytest_cache/
 .ruff_cache/
