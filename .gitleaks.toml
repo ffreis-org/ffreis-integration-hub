@@ -26,28 +26,26 @@ severity    = "info"
   ]
 
 # ── Global allowlist ──────────────────────────────────────────────────────────
-
-[[allowlist]]
-description = "Template placeholders — not real secrets"
+# gitleaks v8 expects a SINGLE [allowlist] table (a map). The legacy [[allowlist]]
+# array-of-tables form fails to load ("expected a map, got slice") and so the
+# scan never runs. The six former groups are merged here; per-group reasoning is
+# retained as inline comments.
+[allowlist]
+description = "Global allowlist: placeholders, doc files, lock files, test fixtures, generated code"
 regexes = [
+  # Template placeholders — not real secrets
   'YOUR_[A-Z_]+',
   'REPLACE_ME',
   '<[A-Z_]+>',
   'example\.com',
-]
-
-[[allowlist]]
-description = "Well-known documentation placeholder account IDs"
-regexes = [
+  # Well-known documentation placeholder account IDs
   '123456789012',
   '000000000000',
   '111111111111',
   '999999999999',
 ]
-
-[[allowlist]]
-description = "Test and fixture files — may contain example-like values by design"
 paths = [
+  # Test and fixture files — may contain example-like values by design
   '.*_test\.go$',
   '.*_test\.py$',
   '.*test_.*\.py$',
@@ -57,20 +55,12 @@ paths = [
   '.*examples?/.*',
   '.*\.example$',
   '.*\.sample$',
-]
-
-[[allowlist]]
-description = "Documentation — prose naturally contains example-like patterns"
-paths = [
+  # Documentation — prose naturally contains example-like patterns
   '.*\.md$',
   '.*\.txt$',
   '.*\.rst$',
   'docs/.*',
-]
-
-[[allowlist]]
-description = "Dependency lock files — hashes are not secrets"
-paths = [
+  # Dependency lock files — hashes are not secrets
   'uv\.lock',
   'poetry\.lock',
   'Cargo\.lock',
@@ -78,11 +68,7 @@ paths = [
   'package-lock\.json',
   'yarn\.lock',
   'Pipfile\.lock',
-]
-
-[[allowlist]]
-description = "Generated protobuf files — binary encoding artifacts"
-paths = [
+  # Generated protobuf files — binary encoding artifacts
   '.*_pb2\.py$',
   '.*_pb2_grpc\.py$',
   '.*\.pb\.go$',
