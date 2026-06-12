@@ -7,6 +7,8 @@ on:
     branches: [main, master]
   schedule:
     - cron: "16 13 26 * *"  # monthly scattered (was: 0 6 * * 1)
+  workflow_dispatch:
+
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
@@ -47,14 +49,16 @@ jobs:
       security-events: write
     # Consolidated fs-security bundle: Trivy(fs) + Grype(fs) + gitleaks in ONE job
     # (was 3 separate jobs). upload-sarif off: GHAS/code-scanning not enabled.
-    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-security-fs.yml@503674eb96658628d0938c23a44d226803021705 # v1.3.0
+    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-security-fs.yml@ce7169b36bd25b1c4c0c8077aa78ecde6d6ca7d5  # v1.6.0
     with:
       working-directory: "."
       scan-history: true
       upload-sarif: false
+      runner: ${{ (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && '["ubuntu-latest"]' || '["self-hosted","spot","linux","x64"]' }}
   osv:
     needs: changes
     if: |
+      (vars.FLEET_SPOT_CI != 'true' || github.event_name == 'workflow_dispatch') &&
       always() && (
         needs.changes.result == 'skipped' ||
         needs.changes.outputs.code == 'true'
@@ -68,6 +72,7 @@ jobs:
       working-directory: "."
       upload-sarif: false
 
+      runner: ${{ (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && '["ubuntu-latest"]' || '["self-hosted","spot","linux","x64"]' }}
   codeql:
     permissions:
       actions: read
@@ -78,3 +83,4 @@ jobs:
       languages: "python"
       source-root: "."
 
+      runner: ${{ (github.event_name == 'pull_request' || github.event_name == 'workflow_dispatch') && '["ubuntu-latest"]' || '["self-hosted","spot","linux","x64"]' }}
