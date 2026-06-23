@@ -72,16 +72,12 @@ def main() -> None:
         )
 
     if response.status_code != 200:
-        raise RuntimeError(
-            f"conversion failed with status={response.status_code}: {response.text}"
-        )
+        raise RuntimeError(f"conversion failed with status={response.status_code}: {response.text}")
 
     output_sha = hashlib.sha256(response.content).hexdigest()
     header_output_sha = response.headers.get("x-output-sha256", "").lower()
     if header_output_sha and output_sha != header_output_sha:
-        raise RuntimeError(
-            f"output sha mismatch: body={output_sha} header={header_output_sha}"
-        )
+        raise RuntimeError(f"output sha mismatch: body={output_sha} header={header_output_sha}")
 
     onnx_path.write_bytes(response.content)
     metadata_path.write_text(
@@ -89,9 +85,7 @@ def main() -> None:
             {
                 "input_sha256": expected_sha,
                 "output_sha256": output_sha,
-                "output_filename": response.headers.get(
-                    "x-output-filename", "model.onnx"
-                ),
+                "output_filename": response.headers.get("x-output-filename", "model.onnx"),
                 "bytes": len(response.content),
             },
             indent=2,

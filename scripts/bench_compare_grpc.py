@@ -85,9 +85,9 @@ def main() -> None:
     _wait_ready(python_target)
     _wait_ready(rust_target)
 
-    payload = json.dumps(
-        {"instances": [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0, 1.0]]}
-    ).encode("utf-8")
+    payload = json.dumps({"instances": [[0.0, 0.0, 0.0], [1.0, 1.0, 1.0], [1.0, 0.0, 1.0]]}).encode(
+        "utf-8"
+    )
     py_latencies: list[float] = []
     rs_latencies: list[float] = []
     mismatches: list[dict[str, Any]] = []

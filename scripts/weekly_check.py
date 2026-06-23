@@ -41,7 +41,7 @@ def _run(
 ) -> tuple[int, float]:
     start = time.time()
     with log_file.open("w", encoding="utf-8") as handle:
-        proc = subprocess.Popen(  # noqa: S603
+        proc = subprocess.Popen(
             shlex.split(command),
             cwd=cwd,
             stdout=handle,
@@ -67,15 +67,15 @@ def _clone_or_update(
         clone_url = spec.url
         if token and clone_url.startswith("https://"):
             clone_url = clone_url.replace("https://", f"https://x-access-token:{token}@", 1)
-        subprocess.run(  # noqa: S603
+        subprocess.run(
             ["git", "clone", "--depth", "1", "--branch", spec.ref, clone_url, str(repo_dir)],
             check=True,
         )
         return repo_dir
 
-    subprocess.run(["git", "fetch", "origin", spec.ref], cwd=repo_dir, check=True)  # noqa: S603
-    subprocess.run(["git", "checkout", spec.ref], cwd=repo_dir, check=True)  # noqa: S603
-    subprocess.run(["git", "reset", "--hard", f"origin/{spec.ref}"], cwd=repo_dir, check=True)  # noqa: S603
+    subprocess.run(["git", "fetch", "origin", spec.ref], cwd=repo_dir, check=True)
+    subprocess.run(["git", "checkout", spec.ref], cwd=repo_dir, check=True)
+    subprocess.run(["git", "reset", "--hard", f"origin/{spec.ref}"], cwd=repo_dir, check=True)
     return repo_dir
 
 

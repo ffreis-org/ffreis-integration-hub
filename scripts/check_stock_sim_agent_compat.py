@@ -76,11 +76,20 @@ def _assert_observation_payload(payload: object) -> tuple[list[float], list[floa
     market = payload.get("market_window_handle")
     assert isinstance(market, Mapping), "market_window_handle must be an object"
     for key in ("start", "end", "t", "current_price"):
-        assert isinstance(market.get(key), (int, float)), f"market_window_handle.{key} must be numeric"
+        assert isinstance(market.get(key), (int, float)), (
+            f"market_window_handle.{key} must be numeric"
+        )
 
-    market_vec = [float(market["start"]), float(market["end"]), float(market["t"]), float(market["current_price"])]
+    market_vec = [
+        float(market["start"]),
+        float(market["end"]),
+        float(market["t"]),
+        float(market["current_price"]),
+    ]
     portfolio = _assert_number_list(payload.get("portfolio_vector"), 4, field="portfolio_vector")
-    order_summary = _assert_number_list(payload.get("order_summary_vector"), 3, field="order_summary_vector")
+    order_summary = _assert_number_list(
+        payload.get("order_summary_vector"), 3, field="order_summary_vector"
+    )
     assert isinstance(payload.get("done"), bool), "done must be a bool"
     return market_vec, portfolio, order_summary
 
@@ -124,7 +133,13 @@ def _check_runtime_event_contract(sim_base_url: str) -> None:
     valid_actions = {
         "actions": [
             {"side_code": 1, "units": 1.0, "order_type_code": 0, "has_limit_price": False},
-            {"side_code": -1, "units": 0.5, "order_type_code": 1, "has_limit_price": True, "limit_price": 100.0},
+            {
+                "side_code": -1,
+                "units": 0.5,
+                "order_type_code": 1,
+                "has_limit_price": True,
+                "limit_price": 100.0,
+            },
             {"side_code": 0, "units": 0.0, "order_type_code": 0, "has_limit_price": False},
         ]
     }
@@ -156,7 +171,9 @@ def _check_runtime_event_contract(sim_base_url: str) -> None:
 
 
 def _check_replay_schema_contract(root_dir: Path) -> None:
-    simulator_repo = Path(os.getenv("SIMULATOR_REPO", str(root_dir.parent / "ffreis-stock-simulator")))
+    simulator_repo = Path(
+        os.getenv("SIMULATOR_REPO", str(root_dir.parent / "ffreis-stock-simulator"))
+    )
     agent_repo = Path(os.getenv("AGENT_REPO", str(root_dir.parent / "ffreis-stock-rl-agent")))
 
     simulator_recorder = simulator_repo / "src" / "stock_simulator" / "recorder.py"
@@ -193,7 +210,9 @@ def _check_replay_schema_contract(root_dir: Path) -> None:
 
     missing_recorded_step = required_recorded_step_fields - recorded_step_fields
     missing_replay_row = required_replay_row_fields - replay_row_fields
-    assert not missing_recorded_step, f"RecordedStep missing fields: {sorted(missing_recorded_step)}"
+    assert not missing_recorded_step, (
+        f"RecordedStep missing fields: {sorted(missing_recorded_step)}"
+    )
     assert not missing_replay_row, f"ReplayRow missing fields: {sorted(missing_replay_row)}"
 
 

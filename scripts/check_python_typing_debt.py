@@ -38,7 +38,7 @@ def _count_debt(repo_dir: Path) -> int:
     cmd = ["rg", "-n", PATTERN.pattern, str(repo_dir), "-g", "*.py"]
     for glob in EXCLUDE_GLOBS:
         cmd.extend(["-g", f"!{glob}"])
-    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)  # noqa: S603
+    proc = subprocess.run(cmd, capture_output=True, text=True, check=False)
     if proc.returncode == 1:
         return 0
     if proc.returncode != 0:
@@ -48,7 +48,9 @@ def _count_debt(repo_dir: Path) -> int:
 
 def main() -> int:
     parser = argparse.ArgumentParser(description="Check Python typing debt across repos")
-    parser.add_argument("--max-total", type=int, default=None, help="Fail if total debt exceeds this")
+    parser.add_argument(
+        "--max-total", type=int, default=None, help="Fail if total debt exceeds this"
+    )
     parser.add_argument("--json-out", default=None, help="Optional JSON report output path")
     args = parser.parse_args()
 

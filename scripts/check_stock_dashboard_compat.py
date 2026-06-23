@@ -47,7 +47,7 @@ def _wait_ok(scheme: str, netloc: str, path: str, timeout_seconds: float = 40.0)
             status, payload = _request(scheme, netloc, path, timeout_seconds=3.0)
             if status == 200:
                 return payload
-        except Exception as exc:  # noqa: BLE001
+        except Exception as exc:
             last_error = exc
         time.sleep(0.5)
     raise RuntimeError(f"timed out waiting for HTTP 200 at {path}: {last_error}")

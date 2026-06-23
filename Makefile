@@ -33,8 +33,9 @@ lint: ## Run lint/type checks on scripts
 	uv run mypy scripts
 
 .PHONY: test
-test: ## Run integration smoke checks against local sibling repos
-	$(MAKE) weekly-check-local
+test: ## Run unit tests (pytest + coverage) and integration smoke checks
+	uv run pytest
+	$(MAKE) check-ml-components
 
 .PHONY: validate
 validate: ## Static type checking (mypy)
@@ -51,8 +52,20 @@ weekly-check: ## Clone/update configured repos and run all parity checks
 	./scripts/weekly_check.py
 
 .PHONY: weekly-check-local
-weekly-check-local: ## Run checks against local sibling repos
+weekly-check-local: check-ml-components ## Run checks against local sibling repos (includes ml-component contracts)
 	./scripts/weekly_check.py --use-local-repos
+
+.PHONY: check-ml-components
+check-ml-components: ## Contract-check all ffreis-ml-* library components (dir/pyproject/src/import/lint)
+	uv run python scripts/check_ml_component_contracts.py
+
+.PHONY: check-feature-contract
+check-feature-contract: ## Check ONNX preprocessing↔model boundary. Usage: make check-feature-contract ARGS="--preprocessing X --model Y"
+	uv run python scripts/check_feature_contract.py $(ARGS)
+
+.PHONY: check-all
+check-all: check-ml-components ## Run all integration checks (ml-component contracts + other suites)
+	@echo "All integration checks complete."
 
 .PHONY: print-summary
 print-summary: ## Print latest JSON summary

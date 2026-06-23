@@ -2,9 +2,10 @@
   "repos": [
     {
       "name": "converter",
-      "url": "https://github.com/ffreis/ffreis-python-onnx-model-converter.git",
+      "url": "https://github.com/FelipeFuhr/ffreis-python-onnx-model-converter.git",
       "ref": "main",
-      "local_path": "../ffreis-python-onnx-model-converter",
+      "local_path": "../../ml/ffreis-python-onnx-model-converter",
+      "component_type": "service",
       "checks": [
         "make grpc-check",
         "make test-grpc-parity",
@@ -13,9 +14,10 @@
     },
     {
       "name": "python-serving",
-      "url": "https://github.com/ffreis/ffreis-python-onnx-model-serving.git",
+      "url": "https://github.com/FelipeFuhr/ffreis-python-onnx-model-serving.git",
       "ref": "main",
-      "local_path": "../ffreis-python-onnx-model-serving",
+      "local_path": "../../ml/ffreis-python-onnx-model-serving",
+      "component_type": "service",
       "checks": [
         "make grpc-check",
         "make test-grpc-parity",
@@ -24,13 +26,166 @@
     },
     {
       "name": "rust-serving",
-      "url": "https://github.com/ffreis/ffreis-rust-onnx-model-serving.git",
+      "url": "https://github.com/FelipeFuhr/ffreis-rust-onnx-model-serving.git",
       "ref": "main",
-      "local_path": "../ffreis-rust-onnx-model-serving",
+      "local_path": "../../ml/ffreis-rust-onnx-model-serving",
+      "component_type": "service",
       "checks": [
         "make grpc-check",
         "make test-grpc-parity",
         "make smoke-api-grpc"
+      ]
+    },
+    {
+      "name": "ml-core",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-core.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-core",
+      "component_type": "library",
+      "package_name": "ml_core",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-train",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-train.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-train",
+      "component_type": "library",
+      "package_name": "ml_train",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-tracking",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-tracking.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-tracking",
+      "component_type": "library",
+      "package_name": "ml_tracking",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-registry",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-registry.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-registry",
+      "component_type": "library",
+      "package_name": "ml_registry",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-data",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-data.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-data",
+      "component_type": "library",
+      "package_name": "ml_data",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-features",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-features.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-features",
+      "component_type": "library",
+      "package_name": "ml_features",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-hpo",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-hpo.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-hpo",
+      "component_type": "library",
+      "package_name": "ml_hpo",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-pipelines",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-pipelines.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-pipelines",
+      "component_type": "library",
+      "package_name": "ml_pipelines",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-monitoring",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-monitoring.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-monitoring",
+      "component_type": "library",
+      "package_name": "ml_monitoring",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-examples",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-examples.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-examples",
+      "component_type": "library",
+      "package_name": "ml_examples",
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-crypto-env",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-crypto-env.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-crypto-env",
+      "component_type": "library",
+      "package_name": "crypto_env",
+      "onnx_boundary": {
+        "role": "preprocessor",
+        "description": "Builds stateless ONNX preprocessing graph: ohlcv_t+ohlcv_prev → 10 market features (float32[10])"
+      },
+      "checks": [
+        "make lint",
+        "make test"
+      ]
+    },
+    {
+      "name": "ml-crypto-rl",
+      "url": "https://github.com/FelipeFuhr/ffreis-ml-crypto-rl.git",
+      "ref": "main",
+      "local_path": "../../ml/ffreis-ml-crypto-rl",
+      "component_type": "library",
+      "package_name": "ml_crypto_rl",
+      "onnx_boundary": {
+        "role": "model",
+        "description": "Exports actor-mean policy ONNX (dynamo=False): 11-feature observation → action scalar"
+      },
+      "checks": [
+        "make lint",
+        "make test"
       ]
     }
   ],
@@ -46,6 +201,27 @@
         "grpc-check",
         "test-grpc-parity",
         "smoke-api-grpc"
+      ]
+    },
+    {
+      "name": "ml-library-baseline",
+      "repos": [
+        "ml-core",
+        "ml-train",
+        "ml-tracking",
+        "ml-registry",
+        "ml-data",
+        "ml-features",
+        "ml-hpo",
+        "ml-pipelines",
+        "ml-monitoring",
+        "ml-examples",
+        "ml-crypto-env",
+        "ml-crypto-rl"
+      ],
+      "targets": [
+        "lint",
+        "test"
       ]
     }
   ]

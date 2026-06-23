@@ -96,9 +96,7 @@ def main() -> None:
 
     output_sha = hashlib.sha256(onnx_bytes).hexdigest()
     if result.output_sha256 and output_sha != result.output_sha256.lower():
-        raise RuntimeError(
-            f"output sha mismatch: body={output_sha} result={result.output_sha256}"
-        )
+        raise RuntimeError(f"output sha mismatch: body={output_sha} result={result.output_sha256}")
 
     onnx_path.write_bytes(onnx_bytes)
     metadata_path.write_text(

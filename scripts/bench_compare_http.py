@@ -38,9 +38,7 @@ def _post_predict(base_url: str, payload: dict[str, Any]) -> tuple[Any, float]:
     )
     elapsed_ms = (time.perf_counter() - started) * 1000.0
     if response.status_code != 200:
-        raise RuntimeError(
-            f"{base_url} failed status={response.status_code} body={response.text}"
-        )
+        raise RuntimeError(f"{base_url} failed status={response.status_code} body={response.text}")
     return response.json(), elapsed_ms
 
 
