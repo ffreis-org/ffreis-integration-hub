@@ -59,6 +59,10 @@ weekly-check-local: check-ml-components ## Run checks against local sibling repo
 check-ml-components: ## Contract-check all ffreis-ml-* library components (dir/pyproject/src/import/lint)
 	uv run python scripts/check_ml_component_contracts.py
 
+.PHONY: ml-component-contracts
+ml-component-contracts: ## Run ML component contract tests (ONNX boundary + registry→serve parity)
+	bash scripts/check_ml_component_contracts.sh
+
 .PHONY: check-feature-contract
 check-feature-contract: ## Check ONNX preprocessing↔model boundary. Usage: make check-feature-contract ARGS="--preprocessing X --model Y"
 	uv run python scripts/check_feature_contract.py $(ARGS)

@@ -1,0 +1,66 @@
+name: ML Component Contracts
+
+on:
+  pull_request:
+    types: [opened, synchronize, reopened, ready_for_review]
+    paths:
+      - "tests/test_ml_onnx_feature_boundary.py"
+      - "tests/test_ml_registry_serve_parity.py"
+      - "scripts/check_ml_component_contracts.sh"
+      - "pyproject.toml"
+      - ".github/workflows/ml-component-contracts.yml"
+  schedule:
+    - cron: "17 10 15 * *"  # monthly scattered
+  workflow_dispatch:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  ml-component-contracts:
+    if: ${{ github.event_name != 'pull_request' || github.event.pull_request.draft == false }}
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: read
+    steps:
+      - name: Checkout integration hub
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+
+      - name: Checkout ffreis-ml-registry
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          repository: FelipeFuhr/ffreis-ml-registry
+          path: ../ffreis-ml-registry
+          token: ${{ secrets.FLEET_READ_TOKEN }}
+
+      - name: Checkout ffreis-ml-crypto-env
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          repository: FelipeFuhr/ffreis-ml-crypto-env
+          path: ../ffreis-ml-crypto-env
+          token: ${{ secrets.FLEET_READ_TOKEN }}
+
+      - name: Checkout ffreis-stock-simulator (crypto-env transitive dep)
+        uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v4
+        with:
+          repository: FelipeFuhr/ffreis-stock-simulator
+          path: ../../../stock/ffreis-stock-simulator
+          token: ${{ secrets.FLEET_READ_TOKEN }}
+
+      - name: Setup Python 3.13
+        uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065 # v5
+        with:
+          python-version: "3.13"
+
+      - name: Setup uv
+        uses: astral-sh/setup-uv@f0ec1fc3b38f5e7cd731bb6ce540c5af426746bb # v4
+
+      - name: Install integration hub with ML extras
+        run: |
+          uv sync --extra registry --extra crypto-env
+
+      - name: Run ML component contracts
+        run: |
+          bash scripts/check_ml_component_contracts.sh --no-color

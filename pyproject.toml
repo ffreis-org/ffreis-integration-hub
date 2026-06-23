@@ -11,10 +11,16 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-# To enable test_registry_serve_parity:
-#   pip install -e ../ffreis-ml-registry    (or: uv pip install -e ../ffreis-ml-registry)
-# The test skips gracefully when ml_registry is not installed.
+# To enable test_registry_serve_parity and test_ml_registry_serve_parity:
+#   pip install -e ../ffreis-ml-registry    (requires Python >=3.13)
+# The tests skip gracefully when ml_registry is not installed.
 registry = []
+# Note: both ffreis-ml-registry and ffreis-ml-crypto-env require Python >=3.13
+# and cannot be declared as uv extras in this hub (requires-python = ">=3.12").
+# Install them manually in a Python 3.13+ environment:
+#   uv pip install -e ../ffreis-ml-registry
+#   uv pip install -e ../ffreis-ml-crypto-env
+# The contract tests skip gracefully when either sibling is absent.
 
 [dependency-groups]
 dev = [
@@ -46,4 +52,7 @@ addopts = [
     "--cov=check_feature_contract",
     "--cov-report=term-missing",
     "--cov-fail-under=80",
+]
+markers = [
+    "integration: cross-repo integration tests (require sibling packages installed)",
 ]
