@@ -17,6 +17,6 @@ jobs:
     permissions:
       issues: write
       pull-requests: write
-    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-stale.yml@main
+    uses: ffreis-org/ffreis-workflows-general/.github/workflows/general-stale.yml@main
     with:
       only: "both"

@@ -15,7 +15,7 @@ jobs:
   actionlint:
     permissions:
       contents: read
-    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-actionlint.yml@main
+    uses: ffreis-org/ffreis-workflows-general/.github/workflows/general-actionlint.yml@main
     with:
       working-directory: .
       fail-on-error: true
