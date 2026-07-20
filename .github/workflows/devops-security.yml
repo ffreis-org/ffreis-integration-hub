@@ -47,7 +47,7 @@ jobs:
       security-events: write
     # Consolidated fs-security bundle: Trivy(fs) + Grype(fs) + gitleaks in ONE job
     # (was 3 separate jobs). upload-sarif off: GHAS/code-scanning not enabled.
-    uses: ffreis-org/ffreis-workflows-general/.github/workflows/general-security-fs.yml@503674eb96658628d0938c23a44d226803021705 # v1.3.0
+    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-security-fs.yml@503674eb96658628d0938c23a44d226803021705 # v1.3.0
     with:
       working-directory: "."
       scan-history: true
@@ -63,7 +63,7 @@ jobs:
       contents: read
       actions: read
       security-events: write
-    uses: ffreis-org/ffreis-workflows-general/.github/workflows/general-osv-scanner.yml@main
+    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-osv-scanner.yml@main
     with:
       working-directory: "."
       upload-sarif: false
@@ -73,7 +73,7 @@ jobs:
       actions: read
       contents: read
       security-events: write
-    uses: ffreis-org/ffreis-workflows-general/.github/workflows/general-codeql.yml@main
+    uses: FelipeFuhr/ffreis-workflows-general/.github/workflows/general-codeql.yml@main
     with:
       languages: "python"
       source-root: "."
